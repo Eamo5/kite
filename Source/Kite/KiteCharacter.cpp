@@ -9,6 +9,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "KiteGameMode.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -84,6 +85,9 @@ void AKiteCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInpu
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AKiteCharacter::Look);
 
+        PlayerInputComponent->BindAction("Restart", IE_Pressed, this, &AKiteCharacter::CallRestartPlayer);
+        
+        //EnhancedInputComponent->BindAction(RespawnAction, ETriggerEvent::Triggered, this, &AKiteCharacter::CallRestartPlayer);
 	}
 
 }
@@ -124,6 +128,36 @@ void AKiteCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+void AKiteCharacter::Destroyed()
+{
+    Super::Destroyed();
 
+    // Example to bind to OnPlayerDied event in GameMode.
+    if (UWorld* World = GetWorld())
+    {
+        if (AKiteGameMode* GameMode = Cast<AKiteGameMode>(World->GetAuthGameMode()))
+        {
+            GameMode->GetOnPlayerDied().Broadcast(this);
+        }
+    }
+}
+
+void AKiteCharacter::CallRestartPlayer()
+{
+    //Get a reference to the Pawn Controller.
+    AController* CortollerRef = GetController();
+
+    //Destroy the Player.
+    Destroy();
+
+    //Get the World and GameMode in the world to invoke its restart player function.
+    if (UWorld* World = GetWorld())
+    {
+        if (AKiteGameMode* GameMode = Cast<AKiteGameMode>(World->GetAuthGameMode()))
+        {
+            GameMode->RestartPlayer(CortollerRef);
+        }
+    }
+}
 
 

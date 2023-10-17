@@ -49,7 +49,12 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 			
+    // Called when our Actor is destroyed during Gameplay.
+    virtual void Destroyed();
 
+    // Call Gamemode class to Restart Player Character.
+    void CallRestartPlayer();
+    
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
